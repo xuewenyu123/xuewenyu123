@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Amaze UI Admin index Examples</title>
+    <meta name="description" content="这是一个 index 页面">
+    <meta name="keywords" content="index">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <link rel="icon" type="image/png" href="/static/i/favicon.png">
+    <link rel="apple-touch-icon-precomposed" href="/static/i/app-icon72x72@2x.png">
+    <meta name="apple-mobile-web-app-title" content="Amaze UI" />
+    <link rel="stylesheet" href="/static/css/amazeui.min.css" />
+    <link rel="stylesheet" href="/static/css/amazeui.datatables.min.css" />
+    <link rel="stylesheet" href="/static/css/app.css">
+    <script src="/static/js/jquery.min.js"></script>
+    <script src="https://unpkg.com/flyio/dist/fly.min.js"></script>
+    <script src="/static/js/interceptors.js"></script>
+
+</head>
+
+<body data-type="login">
+    <script src="/static/js/theme.js"></script>
+    <div class="am-g tpl-g">
+        <!-- 风格切换 -->
+        <div class="tpl-skiner">
+            <div class="tpl-skiner-toggle am-icon-cog">
+            </div>
+            <div class="tpl-skiner-content">
+                <div class="tpl-skiner-content-title">
+                    选择主题
+                </div>
+                <div class="tpl-skiner-content-bar">
+                    <span class="skiner-color skiner-white" data-color="theme-white"></span>
+                    <span class="skiner-color skiner-black" data-color="theme-black"></span>
+                </div>
+            </div>
+        </div>
+        <div class="tpl-login">
+            <div class="tpl-login-content">
+                <div class="tpl-login-title">用户注册</div>
+                <span class="tpl-login-content-info">
+                  填写用户信息
+              </span>
+
+
+                <form class="am-form tpl-form-line-form">
+                    <!--
+                    <div class="am-form-group">
+                        <input type="text" class="tpl-form-input" id="user-name" placeholder="邮箱">
+
+                    </div>
+                    -->
+                    <div class="am-form-group">
+                        <input type="text" class="tpl-form-input" id="user_name" placeholder="用户名">
+                    </div>
+
+                    <div class="am-form-group">
+                        <input type="password" class="tpl-form-input" id="password" placeholder="请输入密码">
+                    </div>
+
+                    <div class="am-form-group">
+                        <input type="password" class="tpl-form-input" id="password_2" placeholder="再次输入密码">
+                    </div>
+
+                    <div class="am-form-group">
+                        <input type="text" class="tpl-form-input" id="phone" placeholder="手机号">
+                    </div>
+
+                    <div class="am-form-group">
+                        <input type="text" class="tpl-form-input" id="email" placeholder="邮箱">
+                    </div>
+
+                    <div class="am-alert am-alert-warning" hidden id="alert_error" data-am-alert >
+                        <!-- <button type="button" class="am-close" id="alert_error_button">&times;</button> -->
+                        <p id="error_info"></p>
+                    </div>
+
+                    <div class="am-form-group">
+
+                        <button type="button" class="am-btn am-btn-primary  am-btn-block tpl-btn-bg-color-success  tpl-login-btn" onclick="regist()">提交</button>
+
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="/static/js/amazeui.min.js"></script>
+    <script src="/static/js/app.js"></script>
+
+</body>
+
+<script type="text/javascript">
+    function set_user(user_name, password, email, phone) {
+        fly.post(
+            "/api/user/regist",
+            {
+                "user_name": user_name,
+                "password": password,
+                "email": email,
+                "phone": phone,
+            }
+        ).then(
+            function (response) {
+                console.log(response)
+            }
+        ).catch(
+            function (error) {
+                console.log(error)
+                // alert(error.response.data.error)
+                $("#alert_error").removeAttr("hidden")
+                $("#error_info").html(error.response.data.error)
+            }
+        )
+    }
+
+    function regist() {
+        $("#alert_error").attr("hidden", "")
+        let user_name = $("#user_name").val()
+        let password = $("#password").val()
+        let email = $("#email").val()
+        let phone = $("#phone").val()
+        console.log("DEBUG:", user_name, password, email, phone)
+        if (password.length < 8 || password.length > 20) {
+            // alert("密码长度必须大于8小于20")
+            $("#error_info").html("密码长度必须大于8小于20")
+            $("#alert_error").removeAttr("hidden")
+            return
+        }
+        if (password != $("#password_2").val()) {
+            // alert("两次密码不同")
+            $("#error_info").html("两次密码不同")
+            $("#alert_error").removeAttr("hidden")
+            return
+        }
+        // alert("创建管理员")
+        set_user(user_name, password, email, phone)
+        alert("创建用户成功")
+        window.location.href = "/api/user/login"
+    }
+
+    $("#password").bind('input propertychange', function ()
+        {
+            let password = $("#password").val()
+            if (password.length < 8 || password.length > 20) {
+                $("#error_info").html("密码长度必须大于8小于20")
+                $("#alert_error").removeAttr("hidden")
+                return
+            }
+            else if ($("#password_2").val().length > 0 && password != $("#password_2").val()) {
+                $("#error_info").html("两次密码不同")
+                $("#alert_error").removeAttr("hidden")
+                return
+            }
+            else {
+                $("#error_info").html("")
+                $("#alert_error").attr("hidden", "")
+            }
+        }
+    )
+
+    $("#password_2").bind('input propertychange', function ()
+        {
+            let password = $("#password").val()
+            if (password != $("#password_2").val()) {
+                $("#error_info").html("两次密码不同")
+                $("#alert_error").removeAttr("hidden")
+                return
+            }
+            else {
+                $("#error_info").html("")
+                $("#alert_error").attr("hidden", "")
+            }
+        }
+    )
+</script>
+
+</html>
